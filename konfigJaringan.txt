@@ -1,0 +1,324 @@
+TSA NP C - Elyaser Ben Guno - Konfigurasi Jaringan
+-----------------------------------------------
+KONFIGURASI R1
+-----------------------------------------------
+Router>en
+Router#conf t
+Router(config)#hostname R1
+R1(config)#enable secret Pr1vil3ge!
+R1(config)#line console 0
+R1(config-line)#password CoNs0le!
+R1(config-line)#exit
+R1(config)#service password-encryption 
+R1(config)#ip domain-name yaserbelajar.com
+R1(config)#crypto key generate rsa 
+	How many bits in the modulus [512]: 1024
+R1(config)#username yaser password P@ssw0rd!
+R1(config)#line vty 0 4
+R1(config-line)#login local
+R1(config-line)#transport input ssh
+R1(config-line)#exit
+R1(config)#
+
+R1(config)#int g0/0/0
+R1(config-if)#description R1 LAN
+R1(config-if)#ip address 192.168.10.1 255.255.255.0
+R1(config-if)#no shutdown
+R1(config-if)#int s0/1/0
+R1(config-if)#description Link to R2
+R1(config-if)#ip address 10.1.1.1 255.255.255.252
+R1(config-if)#no shutdown
+R1(config-if)#int s0/1/1
+R1(config-if)#description Link to R3
+R1(config-if)#ip address 10.1.1.5 255.255.255.252
+R1(config-if)#no shutdown
+R1(config-if)#exit
+R1(config)#
+
+R1(config)#router ospf 10
+R1(config-router)#router-id 1.1.1.1
+R1(config-router)#network 192.168.10.0 0.0.0.255 area 0
+R1(config-router)#network 10.1.1.0 0.0.0.3 area 0
+R1(config-router)#network 10.1.1.4 0.0.0.3 area 0
+R1(config-router)#passive-interface g0/0/0
+R1(config-router)#exit
+R1(config)#
+
+R1(config)#ip dhcp pool R1DHCP
+R1(dhcp-config)#network 192.168.10.0 255.255.255.0
+R1(dhcp-config)#default-router 192.168.10.1
+R1(dhcp-config)#dns-server 192.168.10.253
+R1(dhcp-config)#exit
+R1(config)#ip dhcp excluded-address 192.168.10.1
+R1(config)#ip dhcp excluded-address 192.168.10.253 192.168.10.254
+R1(config)#
+
+ctrl+z
+R1#copy run start
+-----------------------------------------------
+KONFIGURASI R2
+-----------------------------------------------
+Router>en
+Router#conf t
+Router(config)#hostname R2
+R1(config)#enable secret Pr1vil3ge!
+R1(config)#line console 0
+R1(config-line)#password CoNs0le!
+R1(config-line)#exit
+R1(config)#service password-encryption 
+R1(config)#ip domain-name yaserbelajar.com
+R1(config)#crypto key generate rsa 
+	How many bits in the modulus [512]: 1024
+R1(config)#username yaser password P@ssw0rd!
+R1(config)#line vty 0 4
+R1(config-line)#login local
+R1(config-line)#transport input ssh
+R1(config-line)#exit
+R1(config)#
+
+R2(config)#int g0/0/0
+R2(config-if)#description R2 LAN
+R2(config-if)#ip address 192.168.20.1 255.255.255.0
+R2(config-if)#no shutdown
+R2(config-if)#int s0/1/0
+R2(config-if)#description Link to R1
+R2(config-if)#ip address 10.1.1.2 255.255.255.252
+R2(config-if)#no shutdown
+R2(config-if)#int s0/1/1
+R2(config-if)#description Link to R3
+R2(config-if)#ip address 10.1.1.9 255.255.255.252
+R2(config-if)#no shutdown
+R2(config-if)#exit
+R2(config)#
+
+R2(config)#router ospf 10
+R2(config-router)#router-id 2.2.2.2
+R2(config-router)#network 192.168.20.1 0.0.0.0 area 0
+R2(config-router)#network 10.1.1.2 0.0.0.0 area 0
+R2(config-router)#network 10.1.1.9 0.0.0.0 area 0
+R2(config-router)#passive-interface g0/0/0
+R2(config-router)#exit
+R2(config)#
+
+R2(config)#ip dhcp pool R2DHCP
+R2(dhcp-config)#network 192.168.20.0 255.255.255.0
+R2(dhcp-config)#default-router 192.168.20.1
+R2(dhcp-config)#dns-server 192.168.10.253
+R2(dhcp-config)#exit
+R2(config)#ip dhcp excluded-address 192.168.20.1
+R2(config)#
+-----------------------------------------------
+KONFIGURASI R3
+-----------------------------------------------
+Router>en
+Router#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R3
+R3(config)#int g0/0/0
+R3(config-if)#no ip address
+R3(config-if)#no shutdown
+R3(config-if)#int g0/0/0.30
+R3(config-subif)#encapsulation dot1Q 30
+R3(config-subif)#ip address 200.1.1.62 255.255.255.192
+R3(config-subif)#exit
+R3(config)#int g0/0/0.40
+R3(config-subif)#encapsulation dot1Q 40
+R3(config-subif)#ip address 200.1.1.94 255.255.255.224
+R3(config-subif)#exit
+R3(config)#int s0/1/0
+R3(config-if)#description Link to R2
+R3(config-if)#ip address 10.1.1.10 255.255.255.252
+R3(config-if)#no shutdown
+R3(config-if)#int s0/1/1
+R3(config-if)#description Link to R1
+R3(config-if)#ip address 10.1.1.6 255.255.255.252
+R3(config-if)#no shutdown
+R3(config-if)#exit
+
+R3(config)#ip dhcp pool VLAN30
+R3(dhcp-config)#network 200.1.1.0 255.255.255.192
+R3(dhcp-config)#default-router 200.1.1.62
+R3(dhcp-config)#dns-server 192.168.10.253
+R3(dhcp-config)#exit
+R3(config)#
+R3(config)#ip dhcp pool VLAN40
+R3(dhcp-config)#network 200.1.1.64 255.255.255.224
+R3(dhcp-config)#default-router 200.1.1.94
+R3(dhcp-config)#dns-server 192.168.10.253
+R3(dhcp-config)#exit
+R3(config)#ip dhcp excluded-address 200.1.1.1 200.1.1.5
+R3(config)#ip dhcp excluded-address 200.1.1.65 200.1.1.70
+
+R3(config)#router ospf 10
+R3(config-router)#router-id 3.3.3.3
+R3(config-router)#exit
+R3(config)#interface g0/0/0.30
+R3(config-subif)#ip ospf 10 area 0
+R3(config-subif)#int g0/0/0.40
+R3(config-subif)#ip ospf 10 area 0
+R3(config-subif)#int s0/1/0
+R3(config-if)#ip ospf 10 area 0
+R3(config-if)#int s0/1/1
+R3(config-if)#ip ospf 10 area 0
+R3(config-if)#exit
+R3(config)#router ospf 10
+R3(config-router)#passive-interface g0/0/0
+R3(config-router)#exit
+
+R3(config)#enable secret Pr1vil3ge!
+R3(config)#line console 0
+R3(config-line)#password CoNs0le!
+R3(config-line)#exit
+R3(config)#service password-encryption 
+R3(config)#ip domain-name yaserbelajar.com
+R3(config)#crypto key generate rsa
+How many bits in the modulus [512]: 1024
+R3(config)#username yaser password P@ssw0rd!
+R3(config)#line vty 0 4
+R3(config-line)#login local
+R3(config-line)#transport input ssh
+R3(config-line)#exit
+R3(config)#end
+R3#copy run start
+-----------------------------------------------
+KONFIGURASI MSW1
+-----------------------------------------------
+Switch>en
+Switch#conf t
+Switch(config)#hostname MSW1
+
+MSW1(config)#int vlan 1
+MSW1(config-if)#ip address 192.168.10.2 255.255.255.0
+MSW1(config-if)#no shutdown
+MSW1(config-if)#exit
+MSW1(config)#ip default-gateway 192.168.10.1
+
+MSW1(config)#enable secret Pr1vil3ge!
+MSW1(config)#line console 0
+MSW1(config-line)#password CoNs0le!
+MSW1(config-line)#exit
+MSW1(config)#service password-encryption 
+MSW1(config)#ip domain-name yaserbelajar.com	
+MSW1(config)#crypto key generate rsa
+	How many bits in the modulus [512]: 1024
+MSW1(config)#username yaser password P@ssw0rd!
+MSW1(config)#line vty 0 4
+MSW1(config-line)#login local
+MSW1(config-line)#transport input ssh
+MSW1(config-line)#end
+MSW1#copy run start
+-----------------------------------------------
+KONFIGURASI MSW2
+-----------------------------------------------
+Switch>en
+Switch#conf t
+Switch(config)#hostname MSW2
+MSW2(config)#int vlan 1
+MSW2(config-if)#ip address 192.168.20.2 255.255.255.0
+MSW2(config-if)#no shutdown
+MSW2(config-if)#exit
+MSW2(config)#ip default-gateway 192.168.20.1
+MSW2(config)#enable secret Pr1vil3ge!
+MSW2(config)#line console 0
+MSW2(config-line)#password CoNs0le!
+MSW2(config-line)#exit
+MSW2(config)#service password-encryption 
+MSW2(config)#ip domain-name yaserbelajar.com
+MSW2(config)#crypto key generate rsa
+	How many bits in the modulus [512]: 1024
+MSW2(config)#username yaser password P@ssw0rd!
+MSW2(config)#line vty 0 4
+MSW2(config-line)#login local
+MSW2(config-line)#transport input ssh
+MSW2(config-line)#end
+MSW2#copy run start
+-----------------------------------------------
+KONFIGURASI SW3
+-----------------------------------------------
+Switch>en
+Switch#conf t
+Switch(config)#hostname SW3
+SW3(config)#vlan 30
+SW3(config-vlan)#name SALES
+SW3(config-vlan)#exit
+SW3(config)#vlan 40
+SW3(config-vlan)#name ACCOUNTS
+SW3(config-vlan)#exit
+SW3(config)#
+SW3(config)#int range f0/1 - 9
+SW3(config-if-range)#switchport mode access 
+SW3(config-if-range)#switchport access vlan 30
+SW3(config-if-range)#spanning-tree portfast 
+SW3(config-if-range)#exit
+SW3(config)#interface range f0/10 - 20
+SW3(config-if-range)#switchport mode access
+SW3(config-if-range)#switchport access vlan 40
+SW3(config-if-range)#exit
+SW3(config)#interface f0/24
+SW3(config-if)#switchport mode trunk
+SW3(config-if)#exit
+SW3(config)#enable secret Pr1vil3ge!
+SW3(config)#line console 0
+SW3(config-line)#password CoNs0le!
+SW3(config-line)#exit
+SW3(config)#service password-encryption 
+SW3(config)#int vlan 30
+SW3(config-if)#ip address 200.1.1.60 255.255.255.192
+SW3(config-if)#no shutdown
+SW3(config-if)#exit
+SW3(config)#ip default-gateway 200.1.1.62
+SW3(config)#ip domain-name yaserbelajar.com
+SW3(config)#crypto key generate rsa
+	How many bits in the modulus [512]: 1024
+SW3(config)#username yaser password P@ssw0rd!
+SW3(config)#line vty 0 4
+SW3(config-line)#login local
+SW3(config-line)#transport input ssh
+SW3(config)#exit
+SW3#copy run start
+-----------------------------------------------
+KONFIGURASI SW4
+-----------------------------------------------
+Switch>en
+Switch#conf t
+Switch(config)#hostname SW4
+SW4(config)#vlan 30
+SW4(config-vlan)#name SALES
+SW4(config-vlan)#exit
+SW4(config)#vlan 40
+SW4(config-vlan)#name ACCOUNTS
+SW4(config-vlan)#exit
+SW4(config)#interface f0/24
+SW4(config-if)#switchport mode trunk
+SW4(config-if)#exit
+SW4(config)#interface f0/23
+SW4(config-if)#switchport mode trunk
+SW4(config-if)#exit
+SW4(config)#interface range f0/1 - 9
+SW4(config-if-range)#switchport mode access
+SW4(config-if-range)#switchport access vlan 30
+SW4(config-if-range)#exit
+SW4(config)#interface range f0/10 - 20
+SW4(config-if-range)#switchport mode access
+SW4(config-if-range)#switchport access vlan 40
+SW4(config-if-range)#exit
+SW4(config)#enable secret Pr1vil3ge!
+SW4(config)#line console 0
+SW4(config-line)#password CoNs0le!
+SW4(config-line)#exit
+SW4(config)#service password-encryption 
+SW4(config)#int vlan 30
+SW4(config-if)#ip address 200.1.1.61 255.255.255.192
+SW4(config-if)#no shutdown
+SW4(config-if)#exit
+SW4(config)#ip default-gateway 200.1.1.62
+SW4(config)#ip domain-name yaserbelajar.com
+SW4(config)#crypto key generate rsa
+	How many bits in the modulus [512]: 1024
+SW4(config)#username yaser password P@ssw0rd!
+SW4(config)#line vty 0 4
+SW4(config-line)#login local
+SW4(config-line)#transport input ssh
+SW4(config-line)#exit
+SW4(config)#end
+SW4#copy run start
