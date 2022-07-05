@@ -7,8 +7,8 @@ user = "yaser"
 password = "P@ssw0rd!"
 
 webex_url = "https://webexapis.com/v1/messages"
-accessToken = "ZjFjZmIyODUtMDhiMC00OWIzLWE0NzUtMGQyNDc2MGE2NGY4ZmVmNmY3NjMtYjI5_P0A1_4a252141-f787-4173-a4c9-bde69c553a24"
-roomId = "Y2lzY29zcGFyazovL3VybjpURUFNOnVzLXdlc3QtMl9yL1JPT00vOTcxNDk3MzAtOGFkYy0xMWVjLTliNzUtYzk4OGI0MzQzNGM1"
+accessToken = "accesstoken"
+roomId = "roomid"
 
 def get_ticket():
     headers = {"content-type": "application/json"}
